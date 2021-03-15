@@ -1,0 +1,69 @@
+server:
+  port: 8001
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/tax_db?readPreference=primary&appname=MongoDB%20Compass&ssl=false
+      auto-index-creation: true
+    web:
+      pageable:
+        one-indexed-parameters: true
+  mail:
+    host: email-smtp.ap-southeast-1.amazonaws.com
+    port: 587
+    username: AKIASWI3QINMLQV5VPP7
+    fromemail: tarun.singh2@publicissapient.com
+    toemail: tarun.singh2@publicissapient.com
+    properties:
+      mail:
+        debug: false
+        transport:
+          protocol: smtp
+        smtp:
+          auth: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+          starttls:
+            enable: true
+
+secretsPath: c:\dev\secrets
+
+sftp:
+  client:
+    protocol: sftp
+    host: test.scb.host
+    port: 4422
+    username: rbh_in_uat
+    root:
+    privateKeyFile: inbound_robinhood.ppk
+    sessionStrictHostKeyChecking: no
+    sessionConnectTimeout: 15000
+    channelConnectedTimeout: 15000
+
+amazon:
+  s3:
+    bucket-name: reconciliation-service-test
+
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          mongodb:
+            core:
+              MongoTemplate: DEBUG
+rest:
+  client:
+    rider-service: https://rider-service.apps.dev.riderplatform.com/
+    operation-service: https://operations-service.apps.dev.riderplatform.com/
+    reconciliation-service: https://reconciliation-service.apps.dev.riderplatform.com/
+    settlement-service : https://settlement-service.apps.dev.riderplatform.com/
+tax-invoice:
+  database:
+    sequence:
+      prefix: INV
+  csv-file:
+    name-format: rbh-rider-{0}-{1}.csv
+    invoice-number-format: TINVR{0}00000{1}

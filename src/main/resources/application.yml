@@ -1,0 +1,67 @@
+spring:
+  application:
+    name: tax-service
+  messages:
+    basename: ValidationMessages
+  data:
+    web:
+      pageable:
+        one-indexed-parameters: true
+  mail:
+    host: ${SMTP_HOST}
+    port: ${SMPT_PORT}
+    username: ${SMTP_USERNAME}
+    fromemail: ${SMTP_FROMEMAIL}
+    toemail: ${SMTP_TOEMAIL}
+    properties:
+      mail:
+        debug: false
+        transport:
+          protocol: smtp
+        smtp:
+          auth: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+          starttls:
+            enable: true
+
+mongo:
+  dbName: "tax_db"
+
+secretsPath: ${SECRETS_PATH}
+
+logging:
+  level:
+    root: INFO
+
+sftp:
+  client:
+    protocol: sftp
+    host: ${SFTP_HOST}
+    port: 4422
+    username: ${SFTP_USERNAME}
+    root:
+    privateKeyFile: ${SFTP_PRIVATE_KEY_FILE}
+    sessionStrictHostKeyChecking: no
+    sessionConnectTimeout: 15000
+    channelConnectedTimeout: 15000
+
+rest:
+  client:
+    rider-service: ${RIDER_SERVICE_BASE_PATH}
+    operation-service: ${OPERATION_SERVICE_BASE_PATH}
+    reconciliation-service: ${RECONCILIATION_SERVICE_BASE_PATH}
+    settlement-service : ${SETTLEMENT_SERVICE_BASE_PATH}
+
+amazon:
+  s3:
+    bucket-name: ${AMAZON_S3_BUCKET_NAME}
+
+tax-invoice:
+  database:
+    sequence:
+      prefix: INV
+  csv-file:
+    name-format: rbh-rider-{0}-{1}.csv
+    invoice-number-format: TINVR{0}00000{1}

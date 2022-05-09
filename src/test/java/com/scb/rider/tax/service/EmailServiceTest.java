@@ -29,6 +29,8 @@ class EmailServiceTest {
     private static final String FROM_EMAIL = "from@scb.com";
     private static final String TO_EMAIL = "to@scb.com";
     private static final String FILE_NAME = "temp.xls";
+    private static final String SUBJECT = "test subject";
+    private static final String TEXT = "test text";
     private static final int INVOKED_ONCE = 1;
 
     @InjectMocks
@@ -53,6 +55,15 @@ class EmailServiceTest {
         ReflectionTestUtils.setField(emailService, FROM_EMAIL_FIELD, FROM_EMAIL);
         when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
         emailService.sendMailWithAttachment(FILE_NAME, new byte[1]);
+        verify(mailSender, times(INVOKED_ONCE)).send(any(MimeMessage.class));
+    }
+
+    @Test
+    void shouldSendMail() {
+        ReflectionTestUtils.setField(emailService, TO_EMAIL_FIELD, TO_EMAIL);
+        ReflectionTestUtils.setField(emailService, FROM_EMAIL_FIELD, FROM_EMAIL);
+        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+        emailService.sendMail(SUBJECT, TEXT);
         verify(mailSender, times(INVOKED_ONCE)).send(any(MimeMessage.class));
     }
 

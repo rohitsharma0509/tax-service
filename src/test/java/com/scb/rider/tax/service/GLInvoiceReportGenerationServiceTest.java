@@ -32,7 +32,6 @@ class GLInvoiceReportGenerationServiceTest {
     private static final String S1_BATCH_ID = "S1000000001";
     private static final String GL_FILE_NAME = "GL-Invoice.xls";
     private static final String GL_INVOICE = "GL-Invoice";
-    private static final Double TOTAL_SECURITY_DEDUCTION = 10.0;
     private static final int INVOKED_ONCE = 1;
     private static final int INVOKED_TWICE = 2;
 
@@ -40,16 +39,10 @@ class GLInvoiceReportGenerationServiceTest {
     private GLInvoiceReportGenerationService glInvoiceReportGenerationService;
 
     @Mock
-    private ExportService exportService;
-
-    @Mock
     private EmailService emailService;
 
     @Mock
     private ReconciliationServiceClient reconciliationServiceClient;
-
-    @Mock
-    private SettlementServiceClient settlementServiceClient;
 
     @Mock
     private GLInvoiceRepository glInvoiceRepository;
@@ -74,21 +67,9 @@ class GLInvoiceReportGenerationServiceTest {
     }
 
     @Test
-    void shouldNotGenerateInvoiceReportWhenErrorWhileCreatingExcel() throws Exception {
-        GLInvoice glInvoice = GLInvoice.builder().s1BatchId(S1_BATCH_ID).reconBatchId(RECON_BATCH_ID).build();
-        when(reconciliationServiceClient.getFinalReconciliationDetailsByReconBatchId(eq(RECON_BATCH_ID))).thenReturn(Collections.emptyList());
-        when(settlementServiceClient.getTotalSecurityBalanceDeduction(eq(S1_BATCH_ID))).thenReturn(TOTAL_SECURITY_DEDUCTION);
-        when(exportService.buildEntityExcelDocument(anyList(), eq(TOTAL_SECURITY_DEDUCTION))).thenThrow(new ExcelFileGenerationException("Error while creating excel"));
-        glInvoiceReportGenerationService.generateInvoiceReport(glInvoice);
-        verify(glInvoiceRepository, times(INVOKED_TWICE)).save(any(GLInvoice.class));
-    }
-
-    @Test
     void shouldNotGenerateInvoiceReportWhenExceptionWhileUploadingToS3() throws Exception {
         GLInvoice glInvoice = GLInvoice.builder().s1BatchId(S1_BATCH_ID).reconBatchId(RECON_BATCH_ID).build();
         when(reconciliationServiceClient.getFinalReconciliationDetailsByReconBatchId(eq(RECON_BATCH_ID))).thenReturn(Collections.emptyList());
-        when(settlementServiceClient.getTotalSecurityBalanceDeduction(eq(S1_BATCH_ID))).thenReturn(TOTAL_SECURITY_DEDUCTION);
-        when(exportService.buildEntityExcelDocument(anyList(), eq(TOTAL_SECURITY_DEDUCTION))).thenReturn(new byte[1]);
         when(emailService.getFileName()).thenReturn(GL_FILE_NAME);
         when(amazonS3Service.uploadInputStream(any(InputStream.class), eq(GL_INVOICE), eq(S1_BATCH_ID), eq(GL_FILE_NAME))).thenThrow(new NullPointerException());
         glInvoiceReportGenerationService.generateInvoiceReport(glInvoice);
@@ -100,8 +81,6 @@ class GLInvoiceReportGenerationServiceTest {
     void shouldNotGenerateInvoiceReportWhenRecipientListIsEmpty() throws Exception {
         GLInvoice glInvoice = GLInvoice.builder().s1BatchId(S1_BATCH_ID).reconBatchId(RECON_BATCH_ID).build();
         when(reconciliationServiceClient.getFinalReconciliationDetailsByReconBatchId(eq(RECON_BATCH_ID))).thenReturn(Collections.emptyList());
-        when(settlementServiceClient.getTotalSecurityBalanceDeduction(eq(S1_BATCH_ID))).thenReturn(TOTAL_SECURITY_DEDUCTION);
-        when(exportService.buildEntityExcelDocument(anyList(), eq(TOTAL_SECURITY_DEDUCTION))).thenReturn(new byte[1]);
         when(emailService.getFileName()).thenReturn(GL_FILE_NAME);
         when(amazonS3Service.uploadInputStream(any(InputStream.class), eq(GL_INVOICE), eq(S1_BATCH_ID), eq(GL_FILE_NAME))).thenReturn(GL_FILE_NAME);
         doThrow(new RecipientListEmptyException("ToEmail is null")).when(emailService).sendMailWithAttachment(eq(GL_FILE_NAME), any(byte[].class));

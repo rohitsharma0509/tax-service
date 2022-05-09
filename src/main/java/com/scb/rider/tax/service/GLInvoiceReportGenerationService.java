@@ -1,13 +1,12 @@
 package com.scb.rider.tax.service;
 
 import com.scb.rider.tax.client.impl.ReconciliationServiceClient;
-import com.scb.rider.tax.client.impl.SettlementServiceClient;
 import com.scb.rider.tax.constants.ErrorConstants;
-import com.scb.rider.tax.exception.ExcelFileGenerationException;
 import com.scb.rider.tax.exception.ExternalServiceInvocationException;
 import com.scb.rider.tax.exception.MatchedDataNotFoundException;
 import com.scb.rider.tax.exception.RecipientListEmptyException;
 import com.scb.rider.tax.model.document.GLInvoice;
+import com.scb.rider.tax.model.dto.ExcelGLJobDetails;
 import com.scb.rider.tax.model.dto.FinalPaymentReconciliationDetails;
 import com.scb.rider.tax.model.enums.GLInvoiceStatus;
 import com.scb.rider.tax.repository.GLInvoiceRepository;
@@ -30,13 +29,9 @@ public class GLInvoiceReportGenerationService {
     private static final String GL_INVOICE = "GL-Invoice";
 
     @Autowired
-    private ExportService exportService;
-    @Autowired
     private EmailService emailService;
     @Autowired
     private ReconciliationServiceClient reconciliationServiceClient;
-    @Autowired
-    private SettlementServiceClient settlementServiceClient;
     @Autowired
     private GLInvoiceRepository glInvoiceRepository;
     @Autowired
@@ -52,19 +47,17 @@ public class GLInvoiceReportGenerationService {
             glInvoice.setStatus(GLInvoiceStatus.IN_PROGRESS);
             glInvoice.setStartTime(LocalTime.now());
             glInvoiceRepository.save(glInvoice);
+
+
             List<FinalPaymentReconciliationDetails> finalDetails = reconciliationServiceClient.getFinalReconciliationDetailsByReconBatchId(glInvoice.getReconBatchId());
-
-            Double totalSecurityDeduction = settlementServiceClient.getTotalSecurityBalanceDeduction(glInvoice.getS1BatchId());
-
-            byte[] bytes = exportService.buildEntityExcelDocument(finalDetails, totalSecurityDeduction);
-
+            byte[] bytes = ExcelGLJobDetails.generateGlReport(finalDetails);
+            
             log.info("File Generated for GL and sending mail");
             String fileName= emailService.getFileName();
-            InputStream inputStream = new ByteArrayInputStream(bytes);
-            try {
+            try(InputStream inputStream = new ByteArrayInputStream(bytes)) {
                 String s3FileName = amazonS3Service.uploadInputStream(inputStream, GL_INVOICE, glInvoice.getS1BatchId(), fileName);
                 glInvoice.setFileName(s3FileName);
-            }catch (Exception e){
+            } catch (Exception e){
                 reason = ErrorConstants.AWS_S3_EX_MSG;
             }
             emailService.sendMailWithAttachment(fileName, bytes);
@@ -75,9 +68,6 @@ public class GLInvoiceReportGenerationService {
         } catch (MessagingException e) {
             log.error("exception while sending mail", e);
             reason = ErrorConstants.MESSAGING_ERROR_MSG;
-        } catch (ExcelFileGenerationException e) {
-            log.error("Exception occurred while generating GL invoice", e);
-            reason = ErrorConstants.EXCEL_GENERATION_ERROR_MSG;
         } catch (RecipientListEmptyException e) {
             log.error("Recipient list is empty", e);
             reason = ErrorConstants.RECIPIENT_LIST_EMPTY_ERROR_MSG;

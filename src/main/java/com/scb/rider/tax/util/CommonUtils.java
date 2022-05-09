@@ -1,16 +1,25 @@
 package com.scb.rider.tax.util;
 
+import org.apache.commons.lang3.StringUtils;
+
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 public class CommonUtils {
+
+    private static final Integer ROUND_PLACES = 2;
+    
     private CommonUtils() {}
 
     @SuppressWarnings("unchecked")
@@ -58,6 +67,14 @@ public class CommonUtils {
         return dtf.format(localDateTime);
     }
 
+    public static String getFormattedTime(LocalTime localTime, String format) {
+        if(Objects.isNull(localTime)) {
+            return StringUtils.EMPTY;
+        }
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(format);
+        return dtf.format(localTime);
+    }
+
     public static String replaceLast(String text, String regex, String replacement) {
         return text.replaceFirst("(?s)"+regex+"(?!.*?"+regex+")", replacement);
     }
@@ -80,4 +97,17 @@ public class CommonUtils {
                 .replace("\r", "")
                 .replace("\n", "");
     }
+    
+    public static Double round(String value) {
+        if (value == null)
+            return null;
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(ROUND_PLACES, RoundingMode.HALF_UP);
+        return bd.doubleValue();
+    }
+
+    public static Double round(Double value) { 
+    	return CommonUtils.round(String.valueOf(value));
+    }
+    
 }

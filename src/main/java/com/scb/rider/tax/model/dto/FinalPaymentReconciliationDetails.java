@@ -26,7 +26,9 @@ public class FinalPaymentReconciliationDetails {
     private String rhPaymentAmount;
     private Double raPaymentAmount;
     private Double raJobAmount;
+    private String raJobType;
     private Double rhJobAmount;
     private Double mdrValue;
     private Double vatValue;
+    private Double otherDeductions;
 }

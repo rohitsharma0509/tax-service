@@ -15,17 +15,16 @@ public class PropertyUtils {
     MessageSource messageSource;
 
     public String getProperty(String key){
+        if(StringUtils.isEmpty(key)) {
+            return StringUtils.EMPTY;
+        }
         Locale locale = LocaleContextHolder.getLocale();
         return messageSource.getMessage(key, null, locale);
     }
 
     public String getLocalizedReason(String reason) {
         try {
-           if(StringUtils.isNotBlank(reason)) {
-               return getProperty(reason);
-           } else {
-               return StringUtils.EMPTY;
-           }
+           return getProperty(reason);
         } catch(Exception e) {
             return reason;
         }

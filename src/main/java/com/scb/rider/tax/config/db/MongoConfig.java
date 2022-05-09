@@ -37,7 +37,7 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
   @SneakyThrows
   @Override
   public MongoClient mongoClient() {
-    /*final URI mongoUriPath = ResourceUtils.getURL(secretsPath + "/MONGO_CLUSTER_URL").toURI();
+    final URI mongoUriPath = ResourceUtils.getURL(secretsPath + "/MONGO_CLUSTER_URL").toURI();
     final URI mongoUserPath = ResourceUtils.getURL(secretsPath + "/MONGO_USERNAME").toURI();
     final URI mongopassPath = ResourceUtils.getURL(secretsPath + "/MONGO_PASSWORD").toURI();
 
@@ -45,8 +45,7 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
     final String mongoUser = sanitize(Files.readAllBytes(Paths.get(mongoUserPath)));
     final String mongopass = sanitize(Files.readAllBytes(Paths.get(mongopassPath)));
 
-    String url = "mongodb://" + mongoUser + ":" + mongopass + "@" + mongoUri;*/
-    String url = "mongodb://localhost:27017";
+    String url = "mongodb://" + mongoUser + ":" + mongopass + "@" + mongoUri;
     ConnectionString connectionString = new ConnectionString(url);
 
     MongoClientSettings mongoClientSettings =

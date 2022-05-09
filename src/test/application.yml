@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: tax-service
+
+DIST_TRACER_ENDPOINT: ""
+COMPANY: ""
+PROJECT_NAME: ""

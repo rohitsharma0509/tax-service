@@ -1,17 +1,24 @@
 package com.scb.rider.tax.controller;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.fasterxml.jackson.annotation.JsonView;
 import com.scb.rider.tax.model.document.GLInvoice;
 import com.scb.rider.tax.service.GLInvoiceReportGenerationService;
 import com.scb.rider.tax.service.GLInvoiceService;
 import com.scb.rider.tax.view.View;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
+import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @RestController

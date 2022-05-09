@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 public class TaxInvoiceGenerator {
 
     private static final String CHK_FILE_SEPARATOR = "\\|";
-    private static final DecimalFormat df = new DecimalFormat("#.00");
+    private static final DecimalFormat df = new DecimalFormat("0.00");
 
     @Value("${tax-invoice.csv-file.invoice-number-format}")
     private String invoiceNumberFormat;
@@ -43,12 +43,14 @@ public class TaxInvoiceGenerator {
     private RiderServiceClient riderServiceClient;
 
     public ByteArrayOutputStream toCsvFile(LocalDateTime paymentDateTime, BatchConfigurationDto config, Map<String, RiderTaxInvoiceDetails> riderTaxInvoiceDetailsMap) throws IOException {
+        log.info("request received for generating tax invoice csv file.");
         Map<String, RiderProfileDto> riderProfileMap = new HashMap<>();
         if(!CollectionUtils.isEmpty(riderTaxInvoiceDetailsMap)) {
             List<String> riderIds = new ArrayList<>(riderTaxInvoiceDetailsMap.keySet());
             List<RiderProfileDto> riderProfiles = riderServiceClient.getRiderProfilesByRiderIds(riderIds);
             riderProfileMap = riderProfiles.stream().collect(Collectors.toMap(RiderProfileDto::getRiderId, profile -> profile));
         }
+        log.info("number of riders {}", riderProfileMap.size());
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try (
@@ -79,7 +81,7 @@ public class TaxInvoiceGenerator {
                     String address = Objects.isNull(riderProfile.getAddress()) ? StringUtils.EMPTY : riderProfile.getAddress().toString();
                     Double totalAmount = riderTaxDetails.getTotalMdrValue() + riderTaxDetails.getTotalVatValue();
                     String[] values = {
-                            MessageFormat.format(invoiceNumberFormat, currentDateString, seq),
+                            MessageFormat.format(invoiceNumberFormat, currentDateString, String.valueOf(seq)),
                             Constants.BRANCH_CODE, Constants.BUYER_TYPE,
                             riderProfile.getNationalID(), riderTaxDetails.getRiderName(),
                             StringUtils.EMPTY, StringUtils.EMPTY,
@@ -122,10 +124,12 @@ public class TaxInvoiceGenerator {
                 }
             }
         }
+        log.info("exit after generating tax invoice csv file.");
         return outputStream;
     }
 
     public ByteArrayOutputStream toCheckFile(String invoiceFileName, int noOfRecords, int size) throws IOException {
+        log.info("request received for generating tax invoice chk file.");
         ByteArrayOutputStream fos = new ByteArrayOutputStream();
         try (
             Writer w = new OutputStreamWriter(fos, StandardCharsets.UTF_8)
@@ -138,6 +142,7 @@ public class TaxInvoiceGenerator {
             w.append("file_name,total_record,size,hash_data").append(CSVWriter.RFC4180_LINE_END);
             w.append(content.toString()).append(CHK_FILE_SEPARATOR).append(hash).append(CSVWriter.RFC4180_LINE_END);
         }
+        log.info("exit after generating tax invoice chk file.");
         return fos;
     }
 }

@@ -65,3 +65,13 @@ tax-invoice:
   csv-file:
     name-format: rbh-rider-{0}-{1}.csv
     invoice-number-format: TINVR{0}00000{1}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus,health
+  metrics:
+    web:
+      server:
+        auto-time-requests: true

@@ -10,11 +10,17 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+import java.util.Map;
 
 import static com.scb.rider.tax.constants.ExcelHeaderValue.FILE_EXTENSION;
 import static com.scb.rider.tax.constants.ExcelHeaderValue.FILE_PREFIX;
@@ -37,6 +43,9 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
+    @Autowired
+    private TemplateEngine templateEngine;
+
     public void sendMailWithAttachment(String fileName, byte[] fileToAttach) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         log.info("Trying to send mail with attachment with File name {}",fileName);
@@ -55,6 +64,41 @@ public class EmailService {
         } catch (MessagingException e) {
             log.info("Exception while Sending mail {} ",e.getMessage());
             throw new MessagingException("Exception While Sending mail ");
+        }
+    }
+
+    public void sendTemplateMail(String templateName, String subject, Map<String, Object> variables) {
+        sendTemplateMail(templateName, subject, variables, Locale.getDefault());
+    }
+    public void sendTemplateMail(String templateName, String subject, Map<String, Object> variables, Locale locale) {
+        Context context = new Context(locale);
+
+        if (!CollectionUtils.isEmpty(variables)) {
+            for (Map.Entry<String, Object> entry : variables.entrySet()) {
+                context.setVariable(entry.getKey(), entry.getValue());
+            }
+        }
+
+        final String htmlContent = templateEngine.process(templateName, context);
+        sendMail(subject, htmlContent, Boolean.TRUE);
+    }
+
+    public void sendMail(String subject, String body) {
+        sendMail(subject, body, Boolean.FALSE);
+    }
+    public void sendMail(String subject, String body, boolean isHtml) {
+        log.info("Trying to send mail");
+        try {
+            final MimeMessage mimeMessage = mailSender.createMimeMessage();
+            final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.name());
+            message.setSubject(subject);
+            message.setFrom(formEmail);
+            message.setTo(toEmail);
+            message.setText(body, isHtml);
+            mailSender.send(mimeMessage);
+            log.info("Mail sent successfully.");
+        } catch (MessagingException e) {
+            log.error("Exception occurred while sending email", e);
         }
     }
 

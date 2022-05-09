@@ -1,5 +1,5 @@
 server:
-  port: 8001
+  port: 8080
 
 spring:
   data:
@@ -13,8 +13,8 @@ spring:
     host: email-smtp.ap-southeast-1.amazonaws.com
     port: 587
     username: AKIASWI3QINMLQV5VPP7
-    fromemail: tarun.singh2@publicissapient.com
     toemail: tarun.singh2@publicissapient.com
+    fromemail: tarun.singh2@publicissapient.com
     properties:
       mail:
         debug: false
@@ -27,20 +27,6 @@ spring:
           writetimeout: 5000
           starttls:
             enable: true
-
-secretsPath: c:\dev\secrets
-
-sftp:
-  client:
-    protocol: sftp
-    host: test.scb.host
-    port: 4422
-    username: rbh_in_uat
-    root:
-    privateKeyFile: inbound_robinhood.ppk
-    sessionStrictHostKeyChecking: no
-    sessionConnectTimeout: 15000
-    channelConnectedTimeout: 15000
 
 amazon:
   s3:
@@ -67,3 +53,7 @@ tax-invoice:
   csv-file:
     name-format: rbh-rider-{0}-{1}.csv
     invoice-number-format: TINVR{0}00000{1}
+
+DIST_TRACER_ENDPOINT: ""
+COMPANY: ""
+PROJECT_NAME: ""

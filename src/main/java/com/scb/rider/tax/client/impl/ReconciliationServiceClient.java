@@ -75,6 +75,7 @@ public class ReconciliationServiceClient {
             try {
                 page = reconciliationFeignClient.getFinalReconciliationDetailsByBatchId(reconcileBatchId, FinalReconciledStatus.MATCHED.name(), totalPages++, SIZE);
             } catch (Exception e) {
+                log.error("exception while getting data from recon service", e);
                 throw new ExternalServiceInvocationException(ErrorConstants.RECONCILIATION_SERVICE_ERROR_MSG);
             }
             finalReconciliationList.addAll(page.getContent());
